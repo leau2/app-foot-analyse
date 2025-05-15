@@ -112,8 +112,8 @@ def analyse_croisee(r1, r2):
         q = round((1 - p1/100) * (1 - p2/100), 2)
         bloc += f"📊 **Résultat du match : {res1}** ({p1}% + {p2}%) | Quotient : {q}<br>"
 
-    buts1 = pd.to_numeric(r1["Score_Dom"] + r1["Score_Ext"], errors='coerce')
-    buts2 = pd.to_numeric(r2["Score_Dom"] + r2["Score_Ext"], errors='coerce')
+    buts1 = pd.to_numeric(r1["Score_Dom"], errors='coerce') + pd.to_numeric(r1["Score_Ext"], errors='coerce')
+    buts2 = pd.to_numeric(r2["Score_Dom"], errors='coerce') + pd.to_numeric(r2["Score_Ext"], errors='coerce')
     over1 = round((buts1 > 2.5).sum() / len(r1) * 100) if len(r1) else 0
     over2 = round((buts2 > 2.5).sum() / len(r2) * 100) if len(r2) else 0
     under1 = 100 - over1
@@ -126,8 +126,13 @@ def analyse_croisee(r1, r2):
         q = round((1 - under1/100) * (1 - under2/100), 2)
         bloc += f"⚽ **Under 2.5 buts** ({under1}% + {under2}%) | Quotient : {q}<br>"
 
-    btts1 = ((r1["Score_Dom"] > 0) & (r1["Score_Ext"] > 0)).sum()
-    btts2 = ((r2["Score_Dom"] > 0) & (r2["Score_Ext"] > 0)).sum()
+    dom1 = pd.to_numeric(r1["Score_Dom"], errors='coerce')
+    ext1 = pd.to_numeric(r1["Score_Ext"], errors='coerce')
+    dom2 = pd.to_numeric(r2["Score_Dom"], errors='coerce')
+    ext2 = pd.to_numeric(r2["Score_Ext"], errors='coerce')
+
+    btts1 = ((dom1 > 0) & (ext1 > 0)).sum()
+    btts2 = ((dom2 > 0) & (ext2 > 0)).sum()
     b1 = round(btts1 / len(r1) * 100) if len(r1) else 0
     b2 = round(btts2 / len(r2) * 100) if len(r2) else 0
     non_b1 = 100 - b1
@@ -141,7 +146,7 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
-
+    
 # Interface
 with st.sidebar:
     st.title("ISOCSS PRONOSTIC")
