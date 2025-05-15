@@ -1,4 +1,3 @@
-
 import requests
 import pandas as pd
 import streamlit as st
@@ -8,7 +7,6 @@ import json
 
 st.set_page_config(page_title="ISOCSS PRONOSTIC", layout="wide")
 
-# Liste des pays et ligues
 pays_options = ['Argentina', 'Brazil', 'Belgium', 'England', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
 ligues_options = {
     'Argentina': ['Liga Profesional'],
@@ -25,7 +23,6 @@ ligues_options = {
     'USA': ['MLS']
 }
 
-# Initialisation de session_state
 if "show_interface_1" not in st.session_state:
     st.session_state["show_interface_1"] = False
 if "show_interface_2" not in st.session_state:
@@ -79,7 +76,9 @@ def afficher_pronostics(resultats):
             st.success(f"{label} : {percent}%")
 
     total_buts = resultats["Score_Dom"] + resultats["Score_Ext"]
-    total_buts = pd.to_numeric(total_buts, errors='coerce')  # ✅ Ajouté pour éviter l'erreur
+    total_buts = pd.to_numeric(total_buts, errors='coerce')
+    dom = pd.to_numeric(resultats["Score_Dom"], errors='coerce')
+    ext = pd.to_numeric(resultats["Score_Ext"], errors='coerce')
     total = len(resultats)
 
     if total > 0:
@@ -88,7 +87,7 @@ def afficher_pronostics(resultats):
         if over_pct > 0: st.info(f"⚽ Over 2.5 : {over_pct}%")
         if under_pct > 0: st.info(f"⚽ Under 2.5 : {under_pct}%")
 
-        btts_yes = ((resultats["Score_Dom"] > 0) & (resultats["Score_Ext"] > 0)).sum()
+        btts_yes = ((dom > 0) & (ext > 0)).sum()
         btts_no = total - btts_yes
         yes_pct = round(btts_yes / total * 100)
         no_pct = round(btts_no / total * 100)
@@ -113,11 +112,8 @@ def analyse_croisee(r1, r2):
         q = round((1 - p1/100) * (1 - p2/100), 2)
         bloc += f"📊 **Résultat du match : {res1}** ({p1}% + {p2}%) | Quotient : {q}<br>"
 
-    buts1 = r1["Score_Dom"] + r1["Score_Ext"]
-    buts2 = r2["Score_Dom"] + r2["Score_Ext"]
-    buts1 = pd.to_numeric(buts1, errors='coerce')  # ✅ Ajouté
-    buts2 = pd.to_numeric(buts2, errors='coerce')  # ✅ Ajouté
-
+    buts1 = pd.to_numeric(r1["Score_Dom"] + r1["Score_Ext"], errors='coerce')
+    buts2 = pd.to_numeric(r2["Score_Dom"] + r2["Score_Ext"], errors='coerce')
     over1 = round((buts1 > 2.5).sum() / len(r1) * 100) if len(r1) else 0
     over2 = round((buts2 > 2.5).sum() / len(r2) * 100) if len(r2) else 0
     under1 = 100 - over1
@@ -145,7 +141,6 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
-
 
 # Interface
 with st.sidebar:
