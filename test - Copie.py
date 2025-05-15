@@ -1,3 +1,4 @@
+
 import requests
 import pandas as pd
 import streamlit as st
@@ -34,17 +35,6 @@ if "resultats_interface_1" not in st.session_state:
 if "resultats_interface_2" not in st.session_state:
     st.session_state["resultats_interface_2"] = pd.DataFrame()
 
-# Fonction pour récupérer les cotes via l'API
-def recuperer_cotes_api(date, pays, championnat):
-    api_url = f"URL_DE_L_API?date={date}&league={championnat}&country={pays}"
-    headers = {"Authorization": "Bearer ta_clé_api"}
-
-    # Effectuer la requête API
-    response = requests.get(api_url, headers=headers)
-    data = response.json()
-
-    return data['matches']  # Retourne la liste des matchs avec les cotes
-
 @st.cache_data
 def charger_fichier():
     df = pd.read_excel("https://www.dropbox.com/scl/fi/hmuzsmfh0zrqhsjkx3u9v/FTPINNACLEBET365.xlsx?rlkey=2xpjhij52j6qlt9vf5j1bzohx&st=30bzfp5q&raw=1", skiprows=2, header=None)
@@ -63,7 +53,6 @@ def charger_fichier():
 
 df = charger_fichier()
 
-# Fonction pour colorier les résultats
 def color_result(val):
     if val == 'H': return f"<span style='color:green'><b>{val}</b></span>"
     if val == 'D': return f"<span style='color:red'><b>{val}</b></span>"
@@ -90,6 +79,7 @@ def afficher_pronostics(resultats):
             st.success(f"{label} : {percent}%")
 
     total_buts = resultats["Score_Dom"] + resultats["Score_Ext"]
+    total_buts = pd.to_numeric(total_buts, errors='coerce')  # ✅ Ajouté pour éviter l'erreur
     total = len(resultats)
 
     if total > 0:
@@ -105,27 +95,6 @@ def afficher_pronostics(resultats):
         if yes_pct > 0: st.info(f"🔁 BTTS Oui : {yes_pct}%")
         if no_pct > 0: st.info(f"🔁 BTTS Non : {no_pct}%")
 
-# Fonction pour enregistrer les résultats d'analyse dans un fichier
-def enregistrer_resultats(nom_fichier, analyse_text):
-    # Vérifier si le dossier 'resultats' existe, sinon le créer
-    if not os.path.exists('resultats'):
-        os.makedirs('resultats')
-
-    file_path = f"resultats/{nom_fichier}.json"  # Stockage des résultats sous format JSON
-
-    # Sauvegarder les résultats sous forme de dictionnaire
-    results = {
-        'nom_match': nom_fichier,
-        'analyse': analyse_text  # Sauvegarde uniquement l'analyse
-    }
-
-    # Sauvegarder les résultats sous forme de dictionnaire
-    with open(file_path, 'w') as f:
-        json.dump(results, f, indent=4)
-
-    st.success(f"Résultats enregistrés sous le nom : {nom_fichier}")
-
-# Fonction d'analyse croisée
 def analyse_croisee(r1, r2):
     bloc = ""
     if r1.empty or r2.empty:
@@ -146,6 +115,9 @@ def analyse_croisee(r1, r2):
 
     buts1 = r1["Score_Dom"] + r1["Score_Ext"]
     buts2 = r2["Score_Dom"] + r2["Score_Ext"]
+    buts1 = pd.to_numeric(buts1, errors='coerce')  # ✅ Ajouté
+    buts2 = pd.to_numeric(buts2, errors='coerce')  # ✅ Ajouté
+
     over1 = round((buts1 > 2.5).sum() / len(r1) * 100) if len(r1) else 0
     over2 = round((buts2 > 2.5).sum() / len(r2) * 100) if len(r2) else 0
     under1 = 100 - over1
@@ -173,6 +145,7 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
+
 
 # Interface
 with st.sidebar:
