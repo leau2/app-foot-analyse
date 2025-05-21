@@ -24,6 +24,7 @@ ligues_options = {
     'USA': ['MLS']
 }
 
+
 if "show_interface_1" not in st.session_state:
     st.session_state["show_interface_1"] = False
 if "show_interface_2" not in st.session_state:
