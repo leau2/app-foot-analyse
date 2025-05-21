@@ -7,12 +7,13 @@ import json
 
 st.set_page_config(page_title="ISOCSS PRONOSTIC", layout="wide")
 
-pays_options = ['Argentina', 'Brazil', 'Belgium', 'England', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
+pays_options = ['Argentina', 'Brazil', 'Belgium', 'England', 'Europe', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
 ligues_options = {
     'Argentina': ['Liga Profesional'],
     'Brazil': ['Serie A'],
     'Belgium': ['Jupiter Pro League'],
     'England': ['Premier League'],
+    'Europe': ['Champions League'],
     'France': ['Ligue 1', 'Ligue 2'],
     'Germany': ['Bundesliga'],
     'Italy': ['Serie A'],
