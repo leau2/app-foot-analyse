@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#D4AF37"              # Couleur or premium
+backgroundColor="#121212"           # Fond noir doux
+secondaryBackgroundColor="#1E1E1E"  # Cartes / blocs
+textColor="#FFFFFF"                 # Texte blanc
+font="sans serif"
