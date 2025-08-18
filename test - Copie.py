@@ -152,7 +152,7 @@ def analyse_croisee(r1, r2):
 # Interface
 with st.sidebar:
     st.title("ISOCSS PRONOSTIC")
-    choix = st.radio("Navigation", ["Analyser un match", "Analyser une journée", "Résultats historiques"])
+    choix = st.radio("Navigation", ["Analyser un match", "Analyser une journée", "ANALYSE IA"])
 
 if choix == "Analyser un match":
     st.subheader("Analyse d'un match")
@@ -251,3 +251,4 @@ elif choix == "Résultats historiques":
                     st.success(f"📜 {data['nom_match']} : {data['analyse']}")  # Notification sous forme de succès
     else:
         st.warning("Aucun résultat historique trouvé.")
+
