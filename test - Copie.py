@@ -260,8 +260,8 @@ elif choix == "ANALYSE IA":
 
     # Interface 1 : marche EXACTEMENT comme dans "Analyser un match"
     with colG:
-        st.markdown("### Interface 1 (identique)")
-        if st.button("Lancer Interface 1 (IA)"):
+        st.markdown("### PINNACLE")
+        if st.button("LANCER L'IA"):
             st.session_state["show_interface_1"] = True
             r = pd.DataFrame()
             if pin_1 and pin_2:
@@ -285,8 +285,8 @@ elif choix == "ANALYSE IA":
 
     # Interface 2 : UNIQUEMENT Cas 3 et Cas 4 (dans le championnat/pays)
     with colD:
-        st.markdown("### Interface 2 (Cas 3 & 4 uniquement)")
-        if st.button("Lancer Interface 2 (IA)"):
+        st.markdown("### BET365)")
+        if st.button("LANCER L'IA"):
             st.session_state["show_interface_2"] = True
             r = pd.DataFrame()
             if championnat:
@@ -306,6 +306,7 @@ elif choix == "ANALYSE IA":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
