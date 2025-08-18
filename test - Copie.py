@@ -232,23 +232,80 @@ if choix == "Analyser un match":
             else:
                 st.warning("Veuillez entrer un nom de fichier.")
 
-elif choix == "Résultats historiques":
-    st.subheader("Consulter les résultats enregistrés")
+elif choix == "ANALYSE IA":
+    st.subheader("ANALYSE IA")
 
-    # Vérifier si le dossier 'resultats' existe, sinon le créer
-    if not os.path.exists('resultats'):
-        os.makedirs('resultats')
+    # Menus déroulants pour Pays et Championnat (identiques à "Analyser un match")
+    pays = st.selectbox("Pays", options=pays_options, key="ia_pays")
+    championnat = st.selectbox("Championnat", options=ligues_options[pays], key="ia_champ")
 
-    # Liste les fichiers dans le dossier 'resultats'
-    files = [f for f in os.listdir('resultats') if f.endswith('.json')]
-    if files:
-        for file in files:
-            file_name = file.replace('.json', '')  # Retirer l'extension .json
-            # Afficher chaque fichier sous forme de lien avec le nom propre
-            if st.button(f"Voir {file_name}"):
-                with open(f"resultats/{file}", "r") as f:
-                    data = json.load(f)
-                    st.success(f"📜 {data['nom_match']} : {data['analyse']}")  # Notification sous forme de succès
-    else:
-        st.warning("Aucun résultat historique trouvé.")
+    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
+    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="ia_pin1")
+    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="ia_pinn")
+    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="ia_pin2")
+    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="ia_bet1")
+    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="ia_betn")
+    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="ia_bet2")
+
+    # Résultats d'analyse (même logique d'analyse croisée, on réutilise les mêmes session_state)
+    with st.expander("Résultats d'analyse"):
+        if st.session_state["resultats_interface_1"].empty or st.session_state["resultats_interface_2"].empty:
+            st.warning("Aucun résultat trouvé. Lance une analyse d'abord.")
+        else:
+            st.markdown(analyse_croisee(st.session_state["resultats_interface_1"],
+                                        st.session_state["resultats_interface_2"]),
+                        unsafe_allow_html=True)
+
+    colG, colD = st.columns(2)
+
+    # Interface 1 : marche EXACTEMENT comme dans "Analyser un match"
+    with colG:
+        st.markdown("### Interface 1 (identique)")
+        if st.button("Lancer Interface 1 (IA)"):
+            st.session_state["show_interface_1"] = True
+            r = pd.DataFrame()
+            if pin_1 and pin_2:
+                if pin_n:
+                    r = df[(df["Pinnacle_1"] == pin_1) & (df["Pinnacle_N"] == pin_n) & (df["Pinnacle_2"] == pin_2)]
+                if r.empty and bet_1 and bet_2:
+                    r = df[(df["Pinnacle_1"] == pin_1) & (df["Pinnacle_2"] == pin_2) &
+                           (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2)]
+                if r.empty:
+                    r = pd.concat([
+                        df[(df["Pinnacle_1"] == pin_1) & (df["Pinnacle_2"] == pin_2) & (df["Bet365_1"] == bet_1)],
+                        df[(df["Pinnacle_1"] == pin_1) & (df["Pinnacle_2"] == pin_2) & (df["Bet365_2"] == bet_2)]
+                    ])
+                if r.empty:
+                    r = df[(df["Pinnacle_1"] == pin_1) & (df["Pinnacle_2"] == pin_2)]
+            st.session_state["resultats_interface_1"] = r
+
+        if st.session_state["show_interface_1"] and not st.session_state["resultats_interface_1"].empty:
+            afficher_tableau(st.session_state["resultats_interface_1"])
+            afficher_pronostics(st.session_state["resultats_interface_1"])
+
+    # Interface 2 : UNIQUEMENT Cas 3 et Cas 4 (dans le championnat/pays)
+    with colD:
+        st.markdown("### Interface 2 (Cas 3 & 4 uniquement)")
+        if st.button("Lancer Interface 2 (IA)"):
+            st.session_state["show_interface_2"] = True
+            r = pd.DataFrame()
+            if championnat:
+                base = df["Championnat"].str.lower() == championnat.lower()
+                if pays:
+                    base &= df["Pays"].str.lower() == pays.lower()
+
+                # Cas 3 : bet_1 & bet_2 & bet_n
+                r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2) & (df["Bet365_N"] == bet_n)]
+
+                # Cas 4 : si vide, bet_1 & bet_2
+                if r.empty:
+                    r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2)]
+
+            st.session_state["resultats_interface_2"] = r
+
+        if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
+            afficher_tableau(st.session_state["resultats_interface_2"])
+            afficher_pronostics(st.session_state["resultats_interface_2"])
+
+
 
