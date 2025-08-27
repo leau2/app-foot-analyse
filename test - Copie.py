@@ -335,7 +335,7 @@ elif choix == "POURCENTAGE BOOK":
 
     # --- Interface PINNACLE ---
     with colG:
-        st.markdown("### PINNACLE (seulement Pinnacle)")
+        st.markdown("### PINNACLE")
         if st.button("LANCER PB 1", key="pb_btn_if1"):
             st.session_state["show_interface_1"] = True
             r = pd.DataFrame()
@@ -361,7 +361,7 @@ elif choix == "POURCENTAGE BOOK":
 
     # --- Interface BET365 ---
     with colD:
-        st.markdown("### BET365 (Cas 3 & 4)")
+        st.markdown("### BET365")
         if st.button("LANCER PB 2", key="pb_btn_if2"):
             st.session_state["show_interface_2"] = True
             r = pd.DataFrame()
@@ -382,6 +382,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
