@@ -9,7 +9,7 @@ st.set_page_config(page_title="ISOCSS PRONOSTIC", layout="wide")
 
 # --- helper pour saisir les cotes ---
 def cote_input(label, key):
-    raw = st.text_input(label, key=f"{key}_txt", placeholder=placeholder)
+    raw = st.text_input(label, key=f"{key}_txt")
     if not raw:
         return None
     s = raw.strip().replace(" ", "").replace(",", ".")
@@ -397,6 +397,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
