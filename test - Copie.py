@@ -24,7 +24,6 @@ ligues_options = {
     'USA': ['MLS']
 }
 
-
 if "show_interface_1" not in st.session_state:
     st.session_state["show_interface_1"] = False
 if "show_interface_2" not in st.session_state:
@@ -148,7 +147,11 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
-    
+
+# --- Helper pour conserver les zéros décimaux & éviter les collisions de widgets
+def num(label, key):
+    return st.number_input(label, key=key, step=0.01, format="%.2f")
+
 # Interface
 with st.sidebar:
     st.title("ISOCSS PRONOSTIC")
@@ -161,13 +164,13 @@ if choix == "Analyser un match":
     pays = st.selectbox("Pays", options=pays_options)
     championnat = st.selectbox("Championnat", options=ligues_options[pays])
 
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])  # 8 colonnes égales plus petites
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f")
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
+    with col1: pin_1 = num("Pinnacle 1", "am_pin1")
+    with col2: pin_n = num("Pinnacle N", "am_pinn")
+    with col3: pin_2 = num("Pinnacle 2", "am_pin2")
+    with col4: bet_1 = num("Bet365 1", "am_bet1")
+    with col5: bet_n = num("Bet365 N", "am_betn")
+    with col6: bet_2 = num("Bet365 2", "am_bet2")
 
     # Résultats d'analyse dans un panneau pliable
     with st.expander("Résultats d'analyse"):
@@ -227,8 +230,16 @@ if choix == "Analyser un match":
         nom_fichier = st.text_input("Entrez un nom pour enregistrer les résultats :")
         if st.button("Enregistrer"):
             if nom_fichier:
-                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])  # Extraire l'analyse croisée
-                enregistrer_resultats(nom_fichier, analyse_text)
+                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])
+                # Optionnel : définir enregistrer_resultats si pas déjà présent
+                try:
+                    enregistrer_resultats(nom_fichier, analyse_text)
+                except NameError:
+                    os.makedirs("resultats", exist_ok=True)
+                    payload = {"nom_match": nom_fichier, "analyse": analyse_text, "timestamp": datetime.now().isoformat(timespec="seconds")}
+                    with open(os.path.join("resultats", f"{nom_fichier}.json"), "w", encoding="utf-8") as f:
+                        json.dump(payload, f, ensure_ascii=False, indent=2)
+                    st.success(f"✅ Enregistré : {nom_fichier}")
             else:
                 st.warning("Veuillez entrer un nom de fichier.")
 
@@ -382,12 +393,3 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
-
-
-
-
-
-
-
-
-
