@@ -316,7 +316,7 @@ elif choix == "POURCENTAGE BOOK":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="pb_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-   with col1: pin_1 = cote_input("Pinnacle 1", "pb_pin1")
+    with col1: pin_1 = cote_input("Pinnacle 1", "pb_pin1")
     with col2: pin_n = cote_input("Pinnacle N", "pb_pinn")
     with col3: pin_2 = cote_input("Pinnacle 2", "pb_pin2")
     with col4: bet_1 = cote_input("Bet365 1", "pb_bet1")
@@ -384,6 +384,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
