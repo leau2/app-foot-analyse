@@ -1,4 +1,3 @@
-j'aimerais que tu me dises comment fonctionne l'algorythme dans la page analyse AI 
 
 import requests
 import pandas as pd
@@ -308,6 +307,7 @@ elif choix == "ANALYSE IA":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
