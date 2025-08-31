@@ -24,6 +24,7 @@ ligues_options = {
     'USA': ['MLS']
 }
 
+
 if "show_interface_1" not in st.session_state:
     st.session_state["show_interface_1"] = False
 if "show_interface_2" not in st.session_state:
@@ -147,19 +148,7 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
-
-# ---------- helpers ----------
-def num(label, key):
-    # 2 décimales affichées, keys uniques => zéro conservé et pas de collisions
-    return st.number_input(label, key=key, step=0.01, format="%.2f")
-
-def enregistrer_resultats(nom_fichier, analyse_text):
-    os.makedirs("resultats", exist_ok=True)
-    payload = {"nom_match": nom_fichier, "analyse": analyse_text, "timestamp": datetime.now().isoformat(timespec="seconds")}
-    with open(os.path.join("resultats", f"{nom_fichier}.json"), "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    st.success(f"✅ Enregistré : {nom_fichier}")
-
+    
 # Interface
 with st.sidebar:
     st.title("ISOCSS PRONOSTIC")
@@ -172,13 +161,13 @@ if choix == "Analyser un match":
     pays = st.selectbox("Pays", options=pays_options)
     championnat = st.selectbox("Championnat", options=ligues_options[pays])
 
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = num("Pinnacle 1", "am_pin1")
-    with col2: pin_n = num("Pinnacle N", "am_pinn")
-    with col3: pin_2 = num("Pinnacle 2", "am_pin2")
-    with col4: bet_1 = num("Bet365 1", "am_bet1")
-    with col5: bet_n = num("Bet365 N", "am_betn")
-    with col6: bet_2 = num("Bet365 2", "am_bet2")
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])  # 8 colonnes égales plus petites
+    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f")
+    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f")
+    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f")
+    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f")
+    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f")
+    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f")
 
     # Résultats d'analyse dans un panneau pliable
     with st.expander("Résultats d'analyse"):
@@ -238,7 +227,7 @@ if choix == "Analyser un match":
         nom_fichier = st.text_input("Entrez un nom pour enregistrer les résultats :")
         if st.button("Enregistrer"):
             if nom_fichier:
-                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])
+                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])  # Extraire l'analyse croisée
                 enregistrer_resultats(nom_fichier, analyse_text)
             else:
                 st.warning("Veuillez entrer un nom de fichier.")
@@ -258,6 +247,7 @@ elif choix == "ANALYSE IA":
     with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="ia_betn")
     with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="ia_bet2")
 
+    # Résultats d'analyse (même logique d'analyse croisée, on réutilise les mêmes session_state)
     with st.expander("Résultats d'analyse"):
         if st.session_state["resultats_interface_1"].empty or st.session_state["resultats_interface_2"].empty:
             st.warning("Aucun résultat trouvé. Lance une analyse d'abord.")
@@ -268,6 +258,7 @@ elif choix == "ANALYSE IA":
 
     colG, colD = st.columns(2)
 
+    # Interface 1 : marche EXACTEMENT comme dans "Analyser un match"
     with colG:
         st.markdown("### PINNACLE")
         if st.button("LANCER L'IA 1"):
@@ -292,6 +283,7 @@ elif choix == "ANALYSE IA":
             afficher_tableau(st.session_state["resultats_interface_1"])
             afficher_pronostics(st.session_state["resultats_interface_1"])
 
+    # Interface 2 : UNIQUEMENT Cas 3 et Cas 4 (dans le championnat/pays)
     with colD:
         st.markdown("### BET365")
         if st.button("LANCER L'IA 2"):
@@ -302,7 +294,10 @@ elif choix == "ANALYSE IA":
                 if pays:
                     base &= df["Pays"].str.lower() == pays.lower()
 
+                # Cas 3 : bet_1 & bet_2 & bet_n
                 r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2) & (df["Bet365_N"] == bet_n)]
+
+                # Cas 4 : si vide, bet_1 & bet_2
                 if r.empty:
                     r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2)]
 
@@ -315,6 +310,7 @@ elif choix == "ANALYSE IA":
 elif choix == "POURCENTAGE BOOK":
     st.subheader("POURCENTAGE BOOK")
 
+    # Menus
     pays = st.selectbox("Pays", options=pays_options, key="pb_pays")
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="pb_champ")
 
@@ -337,18 +333,21 @@ elif choix == "POURCENTAGE BOOK":
 
     colG, colD = st.columns(2)
 
+    # --- Interface PINNACLE ---
     with colG:
         st.markdown("### PINNACLE")
         if st.button("LANCER PB 1", key="pb_btn_if1"):
             st.session_state["show_interface_1"] = True
             r = pd.DataFrame()
             if pin_1 and pin_2:
+                # Cas 1 : Pinnacle_1 + Pinnacle_N + Pinnacle_2
                 if pin_n:
                     r = df[
                         (df["Pinnacle_1"] == pin_1) &
                         (df["Pinnacle_N"] == pin_n) &
                         (df["Pinnacle_2"] == pin_2)
                     ]
+                # Cas 2 : fallback -> Pinnacle_1 + Pinnacle_2
                 if r.empty:
                     r = df[
                         (df["Pinnacle_1"] == pin_1) &
@@ -360,6 +359,7 @@ elif choix == "POURCENTAGE BOOK":
             afficher_tableau(st.session_state["resultats_interface_1"])
             afficher_pronostics(st.session_state["resultats_interface_1"])
 
+    # --- Interface BET365 ---
     with colD:
         st.markdown("### BET365")
         if st.button("LANCER PB 2", key="pb_btn_if2"):
@@ -370,7 +370,10 @@ elif choix == "POURCENTAGE BOOK":
                 if pays:
                     base &= df["Pays"].str.lower() == pays.lower()
 
+                # Cas 3 : bet_1 & bet_2 & bet_n
                 r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2) & (df["Bet365_N"] == bet_n)]
+
+                # Cas 4 : fallback -> bet_1 & bet_2
                 if r.empty:
                     r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2)]
 
@@ -379,3 +382,12 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
+
+
+
+
+
+
+
+
