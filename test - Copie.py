@@ -162,12 +162,13 @@ if choix == "Analyser un match":
     championnat = st.selectbox("Championnat", options=ligues_options[pays])
 
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])  # 8 colonnes égales plus petites
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f")
+    with col1: pin_1 = cote_input("Pinnacle 1", "am_pin1")
+    with col2: pin_n = cote_input("Pinnacle N", "am_pinn")
+    with col3: pin_2 = cote_input("Pinnacle 2", "am_pin2")
+    with col4: bet_1 = cote_input("Bet365 1", "am_bet1")
+    with col5: bet_n = cote_input("Bet365 N", "am_betn")
+    with col6: bet_2 = cote_input("Bet365 2", "am_bet2")
+
 
     # Résultats d'analyse dans un panneau pliable
     with st.expander("Résultats d'analyse"):
@@ -240,12 +241,12 @@ elif choix == "ANALYSE IA":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="ia_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="ia_pin1")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="ia_pinn")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="ia_pin2")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="ia_bet1")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="ia_betn")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="ia_bet2")
+    with col1: pin_1 = cote_input("Pinnacle 1", "ia_pin1")
+    with col2: pin_n = cote_input("Pinnacle N", "ia_pinn")
+    with col3: pin_2 = cote_input("Pinnacle 2", "ia_pin2")
+    with col4: bet_1 = cote_input("Bet365 1", "ia_bet1")
+    with col5: bet_n = cote_input("Bet365 N", "ia_betn")
+    with col6: bet_2 = cote_input("Bet365 2", "ia_bet2")
 
     # Résultats d'analyse (même logique d'analyse croisée, on réutilise les mêmes session_state)
     with st.expander("Résultats d'analyse"):
@@ -315,12 +316,13 @@ elif choix == "POURCENTAGE BOOK":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="pb_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="pb_pin1")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="pb_pinn")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="pb_pin2")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="pb_bet1")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="pb_betn")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="pb_bet2")
+   with col1: pin_1 = cote_input("Pinnacle 1", "pb_pin1")
+    with col2: pin_n = cote_input("Pinnacle N", "pb_pinn")
+    with col3: pin_2 = cote_input("Pinnacle 2", "pb_pin2")
+    with col4: bet_1 = cote_input("Bet365 1", "pb_bet1")
+    with col5: bet_n = cote_input("Bet365 N", "pb_betn")
+    with col6: bet_2 = cote_input("Bet365 2", "pb_bet2")
+
 
     with st.expander("Résultats d'analyse"):
         if st.session_state["resultats_interface_1"].empty or st.session_state["resultats_interface_2"].empty:
@@ -382,6 +384,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
