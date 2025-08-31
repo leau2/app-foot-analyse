@@ -148,9 +148,19 @@ def analyse_croisee(r1, r2):
 
     return bloc or "Pas de pronostic croisé valide."
 
-# --- Helper pour conserver les zéros décimaux & éviter les collisions de widgets
-def num(label, key):
-    return st.number_input(label, key=key, step=0.01, format="%.2f")
+# ---------- INPUT COTES ROBUSTE (virgule/point, zéros conservés) ----------
+def decimal_input(label, key, placeholder="ex: 2,01 ou 2.01"):
+    raw_key = key + "_raw"
+    if raw_key not in st.session_state:
+        st.session_state[raw_key] = ""
+    raw = st.text_input(label, value=st.session_state[raw_key], key=raw_key, placeholder=placeholder)
+    st.session_state[raw_key] = raw  # garder tel quel (conserve 2,01 / 3,00)
+    cleaned = raw.replace(" ", "").replace(",", ".")
+    try:
+        val = round(float(cleaned), 2)
+    except ValueError:
+        val = None
+    return val
 
 # Interface
 with st.sidebar:
@@ -165,12 +175,12 @@ if choix == "Analyser un match":
     championnat = st.selectbox("Championnat", options=ligues_options[pays])
 
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = num("Pinnacle 1", "am_pin1")
-    with col2: pin_n = num("Pinnacle N", "am_pinn")
-    with col3: pin_2 = num("Pinnacle 2", "am_pin2")
-    with col4: bet_1 = num("Bet365 1", "am_bet1")
-    with col5: bet_n = num("Bet365 N", "am_betn")
-    with col6: bet_2 = num("Bet365 2", "am_bet2")
+    with col1: pin_1 = decimal_input("Pinnacle 1", "am_pin1")
+    with col2: pin_n = decimal_input("Pinnacle N", "am_pinn")
+    with col3: pin_2 = decimal_input("Pinnacle 2", "am_pin2")
+    with col4: bet_1 = decimal_input("Bet365 1", "am_bet1")
+    with col5: bet_n = decimal_input("Bet365 N", "am_betn")
+    with col6: bet_2 = decimal_input("Bet365 2", "am_bet2")
 
     # Résultats d'analyse dans un panneau pliable
     with st.expander("Résultats d'analyse"):
@@ -231,7 +241,6 @@ if choix == "Analyser un match":
         if st.button("Enregistrer"):
             if nom_fichier:
                 analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])
-                # Optionnel : définir enregistrer_resultats si pas déjà présent
                 try:
                     enregistrer_resultats(nom_fichier, analyse_text)
                 except NameError:
@@ -251,12 +260,12 @@ elif choix == "ANALYSE IA":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="ia_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="ia_pin1")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="ia_pinn")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="ia_pin2")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="ia_bet1")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="ia_betn")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="ia_bet2")
+    with col1: pin_1 = decimal_input("Pinnacle 1", "ia_pin1")
+    with col2: pin_n = decimal_input("Pinnacle N", "ia_pinn")
+    with col3: pin_2 = decimal_input("Pinnacle 2", "ia_pin2")
+    with col4: bet_1 = decimal_input("Bet365 1", "ia_bet1")
+    with col5: bet_n = decimal_input("Bet365 N", "ia_betn")
+    with col6: bet_2 = decimal_input("Bet365 2", "ia_bet2")
 
     # Résultats d'analyse (même logique d'analyse croisée, on réutilise les mêmes session_state)
     with st.expander("Résultats d'analyse"):
@@ -326,12 +335,12 @@ elif choix == "POURCENTAGE BOOK":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="pb_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="pb_pin1")
-    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="pb_pinn")
-    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="pb_pin2")
-    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="pb_bet1")
-    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="pb_betn")
-    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="pb_bet2")
+    with col1: pin_1 = decimal_input("Pinnacle 1", "pb_pin1")
+    with col2: pin_n = decimal_input("Pinnacle N", "pb_pinn")
+    with col3: pin_2 = decimal_input("Pinnacle 2", "pb_pin2")
+    with col4: bet_1 = decimal_input("Bet365 1", "pb_bet1")
+    with col5: bet_n = decimal_input("Bet365 N", "pb_betn")
+    with col6: bet_2 = decimal_input("Bet365 2", "pb_bet2")
 
     with st.expander("Résultats d'analyse"):
         if st.session_state["resultats_interface_1"].empty or st.session_state["resultats_interface_2"].empty:
