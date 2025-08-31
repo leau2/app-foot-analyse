@@ -1,3 +1,5 @@
+j'aimerais que tu me dises comment fonctionne l'algorythme dans la page analyse AI 
+
 import requests
 import pandas as pd
 import streamlit as st
@@ -23,6 +25,7 @@ ligues_options = {
     'Netherlands': ['Eredivisie'],
     'USA': ['MLS']
 }
+
 
 if "show_interface_1" not in st.session_state:
     st.session_state["show_interface_1"] = False
@@ -147,25 +150,11 @@ def analyse_croisee(r1, r2):
         bloc += f"🔁 **BTTS Non** ({non_b1}% + {non_b2}%) | Quotient : {q}<br>"
 
     return bloc or "Pas de pronostic croisé valide."
-
-# ---------- INPUT COTES ROBUSTE (virgule/point, zéros conservés) ----------
-def decimal_input(label, key, placeholder="ex: 2,01 ou 2.01"):
-    raw_key = key + "_raw"
-    if raw_key not in st.session_state:
-        st.session_state[raw_key] = ""
-    raw = st.text_input(label, value=st.session_state[raw_key], key=raw_key, placeholder=placeholder)
-    st.session_state[raw_key] = raw  # garder tel quel (conserve 2,01 / 3,00)
-    cleaned = raw.replace(" ", "").replace(",", ".")
-    try:
-        val = round(float(cleaned), 2)
-    except ValueError:
-        val = None
-    return val
-
+    
 # Interface
 with st.sidebar:
     st.title("ISOCSS PRONOSTIC")
-    choix = st.radio("Navigation", ["Analyser un match", "POURCENTAGE BOOK", "ANALYSE IA"])
+    choix = st.radio("Navigation", ["Analyser un match", "Analyser une journée", "ANALYSE IA"])
 
 if choix == "Analyser un match":
     st.subheader("Analyse d'un match")
@@ -174,13 +163,13 @@ if choix == "Analyser un match":
     pays = st.selectbox("Pays", options=pays_options)
     championnat = st.selectbox("Championnat", options=ligues_options[pays])
 
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = decimal_input("Pinnacle 1", "am_pin1")
-    with col2: pin_n = decimal_input("Pinnacle N", "am_pinn")
-    with col3: pin_2 = decimal_input("Pinnacle 2", "am_pin2")
-    with col4: bet_1 = decimal_input("Bet365 1", "am_bet1")
-    with col5: bet_n = decimal_input("Bet365 N", "am_betn")
-    with col6: bet_2 = decimal_input("Bet365 2", "am_bet2")
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])  # 8 colonnes égales plus petites
+    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f")
+    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f")
+    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f")
+    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f")
+    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f")
+    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f")
 
     # Résultats d'analyse dans un panneau pliable
     with st.expander("Résultats d'analyse"):
@@ -240,15 +229,8 @@ if choix == "Analyser un match":
         nom_fichier = st.text_input("Entrez un nom pour enregistrer les résultats :")
         if st.button("Enregistrer"):
             if nom_fichier:
-                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])
-                try:
-                    enregistrer_resultats(nom_fichier, analyse_text)
-                except NameError:
-                    os.makedirs("resultats", exist_ok=True)
-                    payload = {"nom_match": nom_fichier, "analyse": analyse_text, "timestamp": datetime.now().isoformat(timespec="seconds")}
-                    with open(os.path.join("resultats", f"{nom_fichier}.json"), "w", encoding="utf-8") as f:
-                        json.dump(payload, f, ensure_ascii=False, indent=2)
-                    st.success(f"✅ Enregistré : {nom_fichier}")
+                analyse_text = analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"])  # Extraire l'analyse croisée
+                enregistrer_resultats(nom_fichier, analyse_text)
             else:
                 st.warning("Veuillez entrer un nom de fichier.")
 
@@ -260,12 +242,12 @@ elif choix == "ANALYSE IA":
     championnat = st.selectbox("Championnat", options=ligues_options[pays], key="ia_champ")
 
     col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = decimal_input("Pinnacle 1", "ia_pin1")
-    with col2: pin_n = decimal_input("Pinnacle N", "ia_pinn")
-    with col3: pin_2 = decimal_input("Pinnacle 2", "ia_pin2")
-    with col4: bet_1 = decimal_input("Bet365 1", "ia_bet1")
-    with col5: bet_n = decimal_input("Bet365 N", "ia_betn")
-    with col6: bet_2 = decimal_input("Bet365 2", "ia_bet2")
+    with col1: pin_1 = st.number_input("Pinnacle 1", step=0.01, format="%.2f", key="ia_pin1")
+    with col2: pin_n = st.number_input("Pinnacle N", step=0.01, format="%.2f", key="ia_pinn")
+    with col3: pin_2 = st.number_input("Pinnacle 2", step=0.01, format="%.2f", key="ia_pin2")
+    with col4: bet_1 = st.number_input("Bet365 1", step=0.01, format="%.2f", key="ia_bet1")
+    with col5: bet_n = st.number_input("Bet365 N", step=0.01, format="%.2f", key="ia_betn")
+    with col6: bet_2 = st.number_input("Bet365 2", step=0.01, format="%.2f", key="ia_bet2")
 
     # Résultats d'analyse (même logique d'analyse croisée, on réutilise les mêmes session_state)
     with st.expander("Résultats d'analyse"):
@@ -327,78 +309,10 @@ elif choix == "ANALYSE IA":
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
 
-elif choix == "POURCENTAGE BOOK":
-    st.subheader("POURCENTAGE BOOK")
 
-    # Menus
-    pays = st.selectbox("Pays", options=pays_options, key="pb_pays")
-    championnat = st.selectbox("Championnat", options=ligues_options[pays], key="pb_champ")
 
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    with col1: pin_1 = decimal_input("Pinnacle 1", "pb_pin1")
-    with col2: pin_n = decimal_input("Pinnacle N", "pb_pinn")
-    with col3: pin_2 = decimal_input("Pinnacle 2", "pb_pin2")
-    with col4: bet_1 = decimal_input("Bet365 1", "pb_bet1")
-    with col5: bet_n = decimal_input("Bet365 N", "pb_betn")
-    with col6: bet_2 = decimal_input("Bet365 2", "pb_bet2")
 
-    with st.expander("Résultats d'analyse"):
-        if st.session_state["resultats_interface_1"].empty or st.session_state["resultats_interface_2"].empty:
-            st.warning("Aucun résultat trouvé. Lance une analyse d'abord.")
-        else:
-            st.markdown(
-                analyse_croisee(st.session_state["resultats_interface_1"], st.session_state["resultats_interface_2"]),
-                unsafe_allow_html=True
-            )
 
-    colG, colD = st.columns(2)
 
-    # --- Interface PINNACLE ---
-    with colG:
-        st.markdown("### PINNACLE")
-        if st.button("LANCER PB 1", key="pb_btn_if1"):
-            st.session_state["show_interface_1"] = True
-            r = pd.DataFrame()
-            if pin_1 and pin_2:
-                # Cas 1 : Pinnacle_1 + Pinnacle_N + Pinnacle_2
-                if pin_n:
-                    r = df[
-                        (df["Pinnacle_1"] == pin_1) &
-                        (df["Pinnacle_N"] == pin_n) &
-                        (df["Pinnacle_2"] == pin_2)
-                    ]
-                # Cas 2 : fallback -> Pinnacle_1 + Pinnacle_2
-                if r.empty:
-                    r = df[
-                        (df["Pinnacle_1"] == pin_1) &
-                        (df["Pinnacle_2"] == pin_2)
-                    ]
-            st.session_state["resultats_interface_1"] = r
 
-        if st.session_state["show_interface_1"] and not st.session_state["resultats_interface_1"].empty:
-            afficher_tableau(st.session_state["resultats_interface_1"])
-            afficher_pronostics(st.session_state["resultats_interface_1"])
 
-    # --- Interface BET365 ---
-    with colD:
-        st.markdown("### BET365")
-        if st.button("LANCER PB 2", key="pb_btn_if2"):
-            st.session_state["show_interface_2"] = True
-            r = pd.DataFrame()
-            if championnat:
-                base = df["Championnat"].str.lower() == championnat.lower()
-                if pays:
-                    base &= df["Pays"].str.lower() == pays.lower()
-
-                # Cas 3 : bet_1 & bet_2 & bet_n
-                r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2) & (df["Bet365_N"] == bet_n)]
-
-                # Cas 4 : fallback -> bet_1 & bet_2
-                if r.empty:
-                    r = df[base & (df["Bet365_1"] == bet_1) & (df["Bet365_2"] == bet_2)]
-
-            st.session_state["resultats_interface_2"] = r
-
-        if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
-            afficher_tableau(st.session_state["resultats_interface_2"])
-            afficher_pronostics(st.session_state["resultats_interface_2"])
