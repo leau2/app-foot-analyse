@@ -7,6 +7,19 @@ import json
 
 st.set_page_config(page_title="ISOCSS PRONOSTIC", layout="wide")
 
+# --- helper pour saisir les cotes ---
+def cote_input(label, key, placeholder="ex: 1,03 ou 1.03"):
+    raw = st.text_input(label, key=f"{key}_txt", placeholder=placeholder)
+    if not raw:
+        return None
+    s = raw.strip().replace(" ", "").replace(",", ".")
+    try:
+        val = round(float(s), 2)   # normalise à 2 décimales
+        return val
+    except ValueError:
+        st.warning(f"Valeur invalide pour {label} : {raw}")
+        return None
+
 pays_options = ['Argentina', 'Brazil', 'Belgium', 'England', 'Europe', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
 ligues_options = {
     'Argentina': ['Liga Profesional'],
@@ -384,6 +397,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
