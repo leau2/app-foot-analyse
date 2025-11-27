@@ -26,7 +26,7 @@ ligues_options = {
     'Brazil': ['Serie A'],
     'Belgium': ['Jupiter Pro League'],
     'England': ['Premier League'],
-    'Europe': ['Champions League'],
+    'Europe': ['Champions League', 'Europa League'],
     'France': ['Ligue 1', 'Ligue 2'],
     'Germany': ['Bundesliga'],
     'Italy': ['Serie A'],
@@ -397,6 +397,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
