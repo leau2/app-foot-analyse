@@ -23,6 +23,7 @@ def cote_input(label, key):
 pays_options = ['Argentina', 'Brazil', 'Belgium', 'England', 'Europe', 'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
 ligues_options = {
     'Argentina': ['Liga Profesional'],
+    'Australia': ['A League'],
     'Brazil': ['Serie A'],
     'Belgium': ['Jupiter Pro League'],
     'England': ['Premier League'],
@@ -397,6 +398,7 @@ elif choix == "POURCENTAGE BOOK":
         if st.session_state["show_interface_2"] and not st.session_state["resultats_interface_2"].empty:
             afficher_tableau(st.session_state["resultats_interface_2"])
             afficher_pronostics(st.session_state["resultats_interface_2"])
+
 
 
 
