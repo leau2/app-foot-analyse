@@ -199,6 +199,19 @@ st.markdown("""
     input[type=number] {
         -moz-appearance: textfield;
     }
+    
+    /* Masquer le bouton clear (×) et les boutons step (+/-) de Streamlit */
+    .stNumberInput button {
+        display: none !important;
+    }
+    
+    .stNumberInput [data-testid="StyledClearButton"] {
+        display: none !important;
+    }
+    
+    .stNumberInput [data-testid="baseButton-secondary"] {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
