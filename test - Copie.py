@@ -179,38 +179,30 @@ st.markdown("""
     }
     
     /* Labels plus compacts */
-    .stNumberInput > label, .stSelectbox > label {
+    .stNumberInput > label, .stSelectbox > label, .stTextInput > label {
         font-size: 0.85rem !important;
         font-weight: 500;
         margin-bottom: 0.3rem !important;
     }
     
     /* Réduction de l'espace entre les inputs */
-    .stNumberInput, .stSelectbox {
+    .stNumberInput, .stSelectbox, .stTextInput {
         margin-bottom: 0.5rem;
     }
     
-    /* Masquer les boutons +/- (spinners) des number inputs */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-    
-    /* Masquer le bouton clear (×) et les boutons step (+/-) de Streamlit */
-    .stNumberInput button {
-        display: none !important;
+    /* Style des text inputs pour les cotes */
+    .stTextInput > div > div > input {
+        border-radius: 8px;
+        border: 2px solid rgba(99, 102, 241, 0.3);
+        background-color: rgba(255,255,255,0.05);
+        color: white;
+        font-weight: 600;
+        text-align: center;
     }
     
-    .stNumberInput [data-testid="StyledClearButton"] {
-        display: none !important;
-    }
-    
-    .stNumberInput [data-testid="baseButton-secondary"] {
-        display: none !important;
+    .stTextInput > div > div > input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -244,6 +236,17 @@ if "resultats_interface_1" not in st.session_state:
     st.session_state["resultats_interface_1"] = pd.DataFrame()
 if "resultats_interface_2" not in st.session_state:
     st.session_state["resultats_interface_2"] = pd.DataFrame()
+
+# Helper pour convertir les cotes saisies
+def parse_cote(raw_value):
+    """Convertit une cote saisie (accepte , ou .) en float ou None"""
+    if not raw_value or not raw_value.strip():
+        return None
+    s = raw_value.strip().replace(" ", "").replace(",", ".")
+    try:
+        return round(float(s), 2)
+    except ValueError:
+        return None
 
 @st.cache_data
 def charger_fichier():
@@ -505,33 +508,41 @@ with tab1:
             st.markdown("**📊 Pinnacle**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                pin_1 = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pin1", format="%.2f")
+                pin_1 = st.text_input("1", key="am_pin1")
             with col2:
-                pin_n = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pinn", format="%.2f")
+                pin_n = st.text_input("N", key="am_pinn")
             with col3:
-                pin_2 = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pin2", format="%.2f")
+                pin_2 = st.text_input("2", key="am_pin2")
         
         with col_right:
             st.markdown("**📊 Bet365**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                bet_1 = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_bet1", format="%.2f")
+                bet_1 = st.text_input("1", key="am_bet1")
             with col2:
-                bet_n = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_betn", format="%.2f")
+                bet_n = st.text_input("N", key="am_betn")
             with col3:
-                bet_2 = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_bet2", format="%.2f")
+                bet_2 = st.text_input("2", key="am_bet2")
         
         submitted = st.form_submit_button("🚀 Lancer l'analyse", use_container_width=True)
         
         if submitted:
             with st.spinner("🔍 Analyse en cours..."):
+                # Conversion des cotes
+                pin_1_val = parse_cote(pin_1)
+                pin_n_val = parse_cote(pin_n)
+                pin_2_val = parse_cote(pin_2)
+                bet_1_val = parse_cote(bet_1)
+                bet_n_val = parse_cote(bet_n)
+                bet_2_val = parse_cote(bet_2)
+                
                 # Analyse Pinnacle
                 st.session_state["resultats_interface_1"] = analyser_pinnacle(
-                    df, pin_1, pin_n, pin_2, bet_1, bet_2
+                    df, pin_1_val, pin_n_val, pin_2_val, bet_1_val, bet_2_val
                 )
                 # Analyse Bet365
                 st.session_state["resultats_interface_2"] = analyser_bet365(
-                    df, pays, championnat, bet_1, bet_n, bet_2, pin_1, pin_2
+                    df, pays, championnat, bet_1_val, bet_n_val, bet_2_val, pin_1_val, pin_2_val
                 )
             st.success("✅ Analyse terminée !")
     
@@ -581,31 +592,39 @@ with tab2:
         st.markdown("#### 📊 Cotes Pinnacle")
         col1, col2, col3 = st.columns(3)
         with col1:
-            pin_1_ia = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pin1", format="%.2f")
+            pin_1_ia = st.text_input("1", key="ia_pin1")
         with col2:
-            pin_n_ia = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pinn", format="%.2f")
+            pin_n_ia = st.text_input("N", key="ia_pinn")
         with col3:
-            pin_2_ia = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pin2", format="%.2f")
+            pin_2_ia = st.text_input("2", key="ia_pin2")
         
         st.markdown("#### 📊 Cotes Bet365")
         col1, col2, col3 = st.columns(3)
         with col1:
-            bet_1_ia = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_bet1", format="%.2f")
+            bet_1_ia = st.text_input("1", key="ia_bet1")
         with col2:
-            bet_n_ia = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_betn", format="%.2f")
+            bet_n_ia = st.text_input("N", key="ia_betn")
         with col3:
-            bet_2_ia = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_bet2", format="%.2f")
+            bet_2_ia = st.text_input("2", key="ia_bet2")
         
         submitted_ia = st.form_submit_button("🚀 Lancer l'IA", use_container_width=True)
         
         if submitted_ia:
             with st.spinner("🤖 L'IA analyse..."):
+                # Conversion des cotes
+                pin_1_val = parse_cote(pin_1_ia)
+                pin_n_val = parse_cote(pin_n_ia)
+                pin_2_val = parse_cote(pin_2_ia)
+                bet_1_val = parse_cote(bet_1_ia)
+                bet_n_val = parse_cote(bet_n_ia)
+                bet_2_val = parse_cote(bet_2_ia)
+                
                 st.session_state["resultats_interface_1"] = analyser_pinnacle(
-                    df, pin_1_ia, pin_n_ia, pin_2_ia, bet_1_ia, bet_2_ia
+                    df, pin_1_val, pin_n_val, pin_2_val, bet_1_val, bet_2_val
                 )
                 # Pour l'IA, uniquement Bet365 dans le championnat
                 st.session_state["resultats_interface_2"] = analyser_bet365(
-                    df, pays_ia, champ_ia, bet_1_ia, bet_n_ia, bet_2_ia
+                    df, pays_ia, champ_ia, bet_1_val, bet_n_val, bet_2_val
                 )
             st.success("✅ Analyse IA terminée !")
     
@@ -647,40 +666,48 @@ with tab3:
         st.markdown("#### 📊 Cotes Pinnacle")
         col1, col2, col3 = st.columns(3)
         with col1:
-            pin_1_pb = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pin1", format="%.2f")
+            pin_1_pb = st.text_input("1", key="pb_pin1")
         with col2:
-            pin_n_pb = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pinn", format="%.2f")
+            pin_n_pb = st.text_input("N", key="pb_pinn")
         with col3:
-            pin_2_pb = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pin2", format="%.2f")
+            pin_2_pb = st.text_input("2", key="pb_pin2")
         
         st.markdown("#### 📊 Cotes Bet365")
         col1, col2, col3 = st.columns(3)
         with col1:
-            bet_1_pb = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_bet1", format="%.2f")
+            bet_1_pb = st.text_input("1", key="pb_bet1")
         with col2:
-            bet_n_pb = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_betn", format="%.2f")
+            bet_n_pb = st.text_input("N", key="pb_betn")
         with col3:
-            bet_2_pb = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_bet2", format="%.2f")
+            bet_2_pb = st.text_input("2", key="pb_bet2")
         
         submitted_pb = st.form_submit_button("🚀 Lancer l'analyse", use_container_width=True)
         
         if submitted_pb:
             with st.spinner("📊 Calcul des pourcentages..."):
+                # Conversion des cotes
+                pin_1_val = parse_cote(pin_1_pb)
+                pin_n_val = parse_cote(pin_n_pb)
+                pin_2_val = parse_cote(pin_2_pb)
+                bet_1_val = parse_cote(bet_1_pb)
+                bet_n_val = parse_cote(bet_n_pb)
+                bet_2_val = parse_cote(bet_2_pb)
+                
                 # Pour Book: logique simplifiée (cas 1 et 2 pour Pinnacle)
                 r_pin = pd.DataFrame()
-                if pin_1_pb and pin_2_pb:
-                    if pin_n_pb:
-                        r_pin = df[(df["Pinnacle_1"] == pin_1_pb) & 
-                                   (df["Pinnacle_N"] == pin_n_pb) & 
-                                   (df["Pinnacle_2"] == pin_2_pb)]
+                if pin_1_val and pin_2_val:
+                    if pin_n_val:
+                        r_pin = df[(df["Pinnacle_1"] == pin_1_val) & 
+                                   (df["Pinnacle_N"] == pin_n_val) & 
+                                   (df["Pinnacle_2"] == pin_2_val)]
                     if r_pin.empty:
-                        r_pin = df[(df["Pinnacle_1"] == pin_1_pb) & 
-                                   (df["Pinnacle_2"] == pin_2_pb)]
+                        r_pin = df[(df["Pinnacle_1"] == pin_1_val) & 
+                                   (df["Pinnacle_2"] == pin_2_val)]
                 st.session_state["resultats_interface_1"] = r_pin
                 
                 # Bet365: cas 3 et 4
                 st.session_state["resultats_interface_2"] = analyser_bet365(
-                    df, pays_pb, champ_pb, bet_1_pb, bet_n_pb, bet_2_pb
+                    df, pays_pb, champ_pb, bet_1_val, bet_n_val, bet_2_val
                 )
             st.success("✅ Analyse Book terminée !")
     
