@@ -26,15 +26,15 @@ st.markdown("""
     /* En-tête stylé */
     .header-container {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .header-title {
         color: white;
-        font-size: 2.5rem;
+        font-size: 1.8rem;
         font-weight: 800;
         text-align: center;
         margin: 0;
@@ -44,8 +44,8 @@ st.markdown("""
     .header-subtitle {
         color: rgba(255,255,255,0.9);
         text-align: center;
-        font-size: 1.1rem;
-        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
     }
     
     /* Cards modernes */
@@ -93,14 +93,14 @@ st.markdown("""
     .section-header {
         background: rgba(99, 102, 241, 0.1);
         border-left: 4px solid #6366f1;
-        padding: 1rem 1.5rem;
+        padding: 0.6rem 1rem;
         border-radius: 8px;
-        margin: 1.5rem 0;
+        margin: 1rem 0 0.8rem 0;
     }
     
     .section-title {
         color: #6366f1;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         font-weight: 700;
         margin: 0;
     }
@@ -176,6 +176,18 @@ st.markdown("""
         background-color: rgba(99, 102, 241, 0.1);
         border-radius: 8px;
         font-weight: 600;
+    }
+    
+    /* Labels plus compacts */
+    .stNumberInput > label, .stSelectbox > label {
+        font-size: 0.85rem !important;
+        font-weight: 500;
+        margin-bottom: 0.3rem !important;
+    }
+    
+    /* Réduction de l'espace entre les inputs */
+    .stNumberInput, .stSelectbox {
+        margin-bottom: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -456,29 +468,35 @@ with tab1:
     
     # Formulaire pour les paramètres
     with st.form("form_analyse_match"):
-        col1, col2 = st.columns(2)
+        # Pays et Championnat sur une seule ligne compacte
+        col1, col2 = st.columns([1, 1])
         with col1:
             pays = st.selectbox("🌍 Pays", options=pays_options, key="am_pays")
         with col2:
             championnat = st.selectbox("🏆 Championnat", options=ligues_options[pays], key="am_champ")
         
-        st.markdown("#### 📊 Cotes Pinnacle")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            pin_1 = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="am_pin1", format="%.2f")
-        with col2:
-            pin_n = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="am_pinn", format="%.2f")
-        with col3:
-            pin_2 = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="am_pin2", format="%.2f")
+        # Cotes en grille compacte 2x3
+        col_left, col_right = st.columns(2)
         
-        st.markdown("#### 📊 Cotes Bet365")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            bet_1 = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="am_bet1", format="%.2f")
-        with col2:
-            bet_n = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="am_betn", format="%.2f")
-        with col3:
-            bet_2 = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="am_bet2", format="%.2f")
+        with col_left:
+            st.markdown("**📊 Pinnacle**")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                pin_1 = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pin1", format="%.2f", placeholder="Cote 1")
+            with col2:
+                pin_n = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pinn", format="%.2f", placeholder="Cote N")
+            with col3:
+                pin_2 = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_pin2", format="%.2f", placeholder="Cote 2")
+        
+        with col_right:
+            st.markdown("**📊 Bet365**")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                bet_1 = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_bet1", format="%.2f", placeholder="Cote 1")
+            with col2:
+                bet_n = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_betn", format="%.2f", placeholder="Cote N")
+            with col3:
+                bet_2 = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="am_bet2", format="%.2f", placeholder="Cote 2")
         
         submitted = st.form_submit_button("🚀 Lancer l'analyse", use_container_width=True)
         
@@ -540,20 +558,20 @@ with tab2:
         st.markdown("#### 📊 Cotes Pinnacle")
         col1, col2, col3 = st.columns(3)
         with col1:
-            pin_1_ia = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="ia_pin1", format="%.2f")
+            pin_1_ia = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pin1", format="%.2f", placeholder="Cote 1")
         with col2:
-            pin_n_ia = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="ia_pinn", format="%.2f")
+            pin_n_ia = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pinn", format="%.2f", placeholder="Cote N")
         with col3:
-            pin_2_ia = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="ia_pin2", format="%.2f")
+            pin_2_ia = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_pin2", format="%.2f", placeholder="Cote 2")
         
         st.markdown("#### 📊 Cotes Bet365")
         col1, col2, col3 = st.columns(3)
         with col1:
-            bet_1_ia = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="ia_bet1", format="%.2f")
+            bet_1_ia = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_bet1", format="%.2f", placeholder="Cote 1")
         with col2:
-            bet_n_ia = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="ia_betn", format="%.2f")
+            bet_n_ia = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_betn", format="%.2f", placeholder="Cote N")
         with col3:
-            bet_2_ia = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="ia_bet2", format="%.2f")
+            bet_2_ia = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="ia_bet2", format="%.2f", placeholder="Cote 2")
         
         submitted_ia = st.form_submit_button("🚀 Lancer l'IA", use_container_width=True)
         
@@ -606,20 +624,20 @@ with tab3:
         st.markdown("#### 📊 Cotes Pinnacle")
         col1, col2, col3 = st.columns(3)
         with col1:
-            pin_1_pb = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="pb_pin1", format="%.2f")
+            pin_1_pb = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pin1", format="%.2f", placeholder="Cote 1")
         with col2:
-            pin_n_pb = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="pb_pinn", format="%.2f")
+            pin_n_pb = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pinn", format="%.2f", placeholder="Cote N")
         with col3:
-            pin_2_pb = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="pb_pin2", format="%.2f")
+            pin_2_pb = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_pin2", format="%.2f", placeholder="Cote 2")
         
         st.markdown("#### 📊 Cotes Bet365")
         col1, col2, col3 = st.columns(3)
         with col1:
-            bet_1_pb = st.number_input("Cote 1", min_value=1.0, max_value=50.0, step=0.01, key="pb_bet1", format="%.2f")
+            bet_1_pb = st.number_input("1", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_bet1", format="%.2f", placeholder="Cote 1")
         with col2:
-            bet_n_pb = st.number_input("Cote N", min_value=1.0, max_value=50.0, step=0.01, key="pb_betn", format="%.2f")
+            bet_n_pb = st.number_input("N", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_betn", format="%.2f", placeholder="Cote N")
         with col3:
-            bet_2_pb = st.number_input("Cote 2", min_value=1.0, max_value=50.0, step=0.01, key="pb_bet2", format="%.2f")
+            bet_2_pb = st.number_input("2", min_value=1.0, max_value=50.0, step=0.01, value=None, key="pb_bet2", format="%.2f", placeholder="Cote 2")
         
         submitted_pb = st.form_submit_button("🚀 Lancer l'analyse", use_container_width=True)
         
