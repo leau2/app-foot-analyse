@@ -212,7 +212,7 @@ st.markdown("""
 # ============================================================================
 
 pays_options = ['Australia', 'Argentina', 'Brazil', 'Belgium', 'England', 'Europe', 
-                'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA']
+                'France', 'Germany', 'Italy', 'Spain', 'Portugal', 'Turkey', 'Netherlands', 'USA', 'World' ]
 
 ligues_options = {
     'Argentina': ['Liga Profesional'],
@@ -229,6 +229,7 @@ ligues_options = {
     'Turkey': ['Super Lig'],
     'Netherlands': ['Eredivisie'],
     'USA': ['MLS']
+    'World': ['World Championship']
 }
 
 # Session state
