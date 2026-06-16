@@ -228,7 +228,7 @@ ligues_options = {
     'Portugal': ['Liga Portugal'],
     'Turkey': ['Super Lig'],
     'Netherlands': ['Eredivisie'],
-    'USA': ['MLS']
+    'USA': ['MLS'],
     'World': ['World Championship']
 }
 
